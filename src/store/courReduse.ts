@@ -1,15 +1,20 @@
-export type initialStateType = {
-    count: number
-    startCount: number
-    maxCount: number
-}
-let initialState = {
-    count: 0,
-    startCount: 1,
-    maxCount: 0,
+const localStartState = Number(localStorage.getItem('START_COUNT'))
+const maxStartState = Number(localStorage.getItem('MAX-COUNT'))
+const initialState:initialStateType = {
+    count: localStartState,
+    startCount: localStartState,
+    maxCount: maxStartState,
+    disabled: true,
+    error:true
 }
 
 export const CountReduser = (state: initialStateType = initialState, action: actionType): initialStateType => {
+    function setMaxLocalState(value: number) {
+        localStorage.setItem('MAX-COUNT', JSON.stringify(value))
+    }
+    function setStartLocalState(value: number) {
+        localStorage.setItem('START_COUNT', JSON.stringify(value))
+    }
     switch (action.type) {
         case "INC":
             return {...state, count: state.count + 1}
@@ -20,29 +25,46 @@ export const CountReduser = (state: initialStateType = initialState, action: act
         case "START-COUNT":
             return {...state, startCount: action.value}
         case "SET-START-COUNT":
-            return {...state,count:state.startCount}
+            setMaxLocalState(state.maxCount)
+            setStartLocalState(state.startCount)
+            return {...state, count: state.startCount}
+        case "DISABLED":
+            return {...state, disabled: action.disabledValue}
         default:
             return state
     }
-
 }
+
 //action
+export const incAC = () => ({type: "INC"} as const)
+export const resAC = () => ({type: "RES"} as const)
+export const startValueAC = (value: number) => ({type: "START-COUNT", value} as const)
+export const maxValueAC = (value: number) => ({type: "MAX-COUNT", value} as const)
+export const setStartCountAC = () => ({type: "SET-START-COUNT"} as const)
+export const disabledAC = (disabledValue: boolean) => ({type: "DISABLED", disabledValue} as const)
+//StateType
+export type initialStateType = {
+    count: number
+    startCount: number
+    maxCount: number
+    disabled: boolean
+    error:boolean
+}
+
+//action type
 type actionType = incType
     | resType
     | startCountType
     | maxCountType
     | setStartCountType
-
-export const incAC = () => ({type: "INC"} as const)
+    | disabledType
+type disabledType = ReturnType<typeof disabledAC>
 type incType = ReturnType<typeof incAC>
-export const resAC = () => ({type: "RES"} as const)
 type resType = ReturnType<typeof resAC>
-
-export const startValueAC = (value: number) => ({type: "START-COUNT", value} as const)
 type startCountType = ReturnType<typeof startValueAC>
-
-export const maxValueAC = (value: number) => ({type: "MAX-COUNT", value} as const)
 type maxCountType = ReturnType<typeof maxValueAC>
-
-export const setStartCountAC = () => ({type: "SET-START-COUNT"}as const)
 type setStartCountType = ReturnType<typeof setStartCountAC>
+
+
+
+

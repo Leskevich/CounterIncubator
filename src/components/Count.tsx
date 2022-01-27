@@ -2,35 +2,37 @@ import React from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import {AppRootStateType} from "../store/store";
 import {incAC, initialStateType, resAC} from "../store/courReduse";
+import s from './Count.module.css'
 
-type countP = {
-    count: number
-    inc: () => void
-    res: () => void
-    maxCount: number
-    startCount: number
-    disabled: boolean
-}
+const Count = () => {
+    const stateCount = useSelector<AppRootStateType, initialStateType>((state) => state.count)
+    const dispatch = useDispatch()
+    const incCount = () => dispatch(incAC())
+    const resCount = () => dispatch(resAC())
 
-
-const Count = ({res, maxCount, startCount, disabled}: countP) => {
-    let stateCount = useSelector<AppRootStateType, initialStateType>((state) => state.count)
-    let dispatch = useDispatch()
-    let incCount = () => dispatch(incAC())
-    let resCount = () => dispatch(resAC())
-
+    let errorCount = stateCount.startCount === stateCount.maxCount
+    || stateCount.startCount >= stateCount.maxCount
+    || stateCount.startCount < 0
+    || stateCount.maxCount < 0
+    || stateCount.count === stateCount.maxCount
+        ? s.countError : s.count
 
     return (
         <div>
-            <div>
-                {stateCount.count}
+            <div className={errorCount}>
+                {
+                    stateCount.startCount < 0 || stateCount.maxCount < 0
+                        ? ' >=0' : stateCount.startCount >= stateCount.maxCount
+                            ? 'max должент быть больше' : stateCount.count
+                }
             </div>
-
-            <button onClick={incCount} disabled={stateCount.count === stateCount.maxCount || !disabled}>inc</button>
-            <button onClick={resCount} disabled={stateCount.count === stateCount.startCount || !disabled}>res</button>
+            <button onClick={incCount} disabled={stateCount.count === stateCount.maxCount || !stateCount.disabled}>
+                inc
+            </button>
+            <button onClick={resCount} disabled={stateCount.count === stateCount.startCount || !stateCount.disabled}>
+                res
+            </button>
         </div>
     )
-
-
 }
 export default Count

@@ -1,43 +1,49 @@
 import React, {ChangeEvent} from 'react';
-import {useDispatch} from "react-redux";
-import {maxValueAC, setStartCountAC, startValueAC} from "../store/courReduse";
+import {useDispatch, useSelector} from "react-redux";
+import {disabledAC, initialStateType, maxValueAC, setStartCountAC, startValueAC} from "../store/courReduse";
+import {AppRootStateType} from "../store/store";
+import s from './Count.module.css'
 
-type startCountP = {
-    startValue: (value: number) => void
-    maxValue: (value: number) => void
-    setStartValue: () => void
-    setLocalValue: (value: number) => void
-    setDisabled: (t: boolean) => void
-    disabled: boolean
-}
-const StartCount = ({startValue, maxValue, setStartValue, setDisabled, disabled, setLocalValue}: startCountP) => {
-let dispatch = useDispatch()
-    let startCounter = (e: ChangeEvent<HTMLInputElement>) => {
+const StartCount = () => {
+//state
+    const dispatch = useDispatch()
+    const stateCount = useSelector<AppRootStateType, initialStateType>((state) => state.count)
+
+//function
+    const startCounter = (e: ChangeEvent<HTMLInputElement>) => {
         let value = e.currentTarget.value
         dispatch(startValueAC(+value))
-        setDisabled(false)
-        setLocalValue(+value)
+        dispatch(disabledAC(false))
     }
-    let maxCounter = (e: ChangeEvent<HTMLInputElement>) => {
-        let value = e.currentTarget.value
+    const maxCounter = (e: ChangeEvent<HTMLInputElement>) => {
+        const value = e.currentTarget.value
         dispatch(maxValueAC(+value))
-
-        setDisabled(false)
+        dispatch(disabledAC(false))
     }
-    let buttonClick = () => {
+    const buttonClick = () => {
         dispatch(setStartCountAC())
-
-        setDisabled(true)
+        dispatch(disabledAC(true))
     }
+    let ErrorClassStartCount = stateCount.startCount === stateCount.maxCount
+        || stateCount.startCount<0
+        ? s.inputError : s.input
+    let ErrorClassMaxCount = stateCount.startCount >= stateCount.maxCount
+        ? s.inputError : s.input
 
     return (
         <div>
-            <input placeholder={'start count'} onChange={startCounter}/>
-            <input placeholder={'max count'} onChange={maxCounter}/>
-            <button disabled={disabled} onClick={buttonClick}>set</button>
+            start
+            <input className={ErrorClassStartCount} type={"number"} value={stateCount.startCount} onChange={startCounter}/>
+            max
+            <input className={ErrorClassMaxCount} type={"number"} value={stateCount.maxCount} onChange={maxCounter}/>
+            <button
+                disabled={stateCount.disabled ||
+                    stateCount.startCount < 0 ||
+                    stateCount.maxCount < 0 ||
+                    stateCount.startCount === stateCount.maxCount}
+                onClick={buttonClick}>set
+            </button>
         </div>
     )
 }
-
-
 export default StartCount
