@@ -5,7 +5,8 @@ import StartCount from "./components/StartCount";
 
 
 function App() {
-    let [count, setCount] = useState(0)
+    const valueFromLocalStorage = Number(localStorage.getItem('count'))
+    let [count, setCount] = useState(valueFromLocalStorage)
     let [startCount, setStartCount] = useState(0)
     let [maxCount, setMaxCount] = useState(0)
     let [disabled, setDisabled] = useState(true)
@@ -30,6 +31,10 @@ function App() {
         setCount(startCount)
     }
 
+    const setLocalValue = (value: number) => {
+        localStorage.setItem('count', JSON.stringify(value))
+    }
+
     return (
         <div className="App">
             <StartCount
@@ -38,6 +43,7 @@ function App() {
                 startValue={startValue}
                 maxValue={maxValue}
                 setStartValue={setStartValue}
+                setLocalValue={setLocalValue}
             />
             <Count
                 count={count}
