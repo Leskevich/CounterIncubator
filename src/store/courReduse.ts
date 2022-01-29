@@ -8,13 +8,12 @@ const initialState:initialStateType = {
     error:true
 }
 
+function setToLocalStorage(key: string, value: number) {
+    localStorage.setItem(key, JSON.stringify(value))
+}
+
 export const CountReduser = (state: initialStateType = initialState, action: actionType): initialStateType => {
-    function setMaxLocalState(value: number) {
-        localStorage.setItem('MAX-COUNT', JSON.stringify(value))
-    }
-    function setStartLocalState(value: number) {
-        localStorage.setItem('START_COUNT', JSON.stringify(value))
-    }
+
     switch (action.type) {
         case "INC":
             return {...state, count: state.count + 1}
@@ -25,8 +24,8 @@ export const CountReduser = (state: initialStateType = initialState, action: act
         case "START-COUNT":
             return {...state, startCount: action.value}
         case "SET-START-COUNT":
-            setMaxLocalState(state.maxCount)
-            setStartLocalState(state.startCount)
+            setToLocalStorage('MAX-COUNT', state.maxCount);
+            setToLocalStorage('START_COUNT', state.startCount);
             return {...state, count: state.startCount}
         case "DISABLED":
             return {...state, disabled: action.disabledValue}
@@ -50,7 +49,6 @@ export type initialStateType = {
     disabled: boolean
     error:boolean
 }
-
 //action type
 type actionType = incType
     | resType

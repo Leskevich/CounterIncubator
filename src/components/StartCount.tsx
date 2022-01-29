@@ -1,4 +1,4 @@
-import React, {ChangeEvent} from 'react';
+import React, {ChangeEvent, useCallback} from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import {disabledAC, initialStateType, maxValueAC, setStartCountAC, startValueAC} from "../store/courReduse";
 import {AppRootStateType} from "../store/store";
@@ -7,8 +7,7 @@ import s from './Count.module.css'
 const StartCount = () => {
 //state
     const dispatch = useDispatch()
-    const stateCount = useSelector<AppRootStateType, initialStateType>((state) => state.count)
-
+    const {startCount, maxCount, disabled} = useSelector<AppRootStateType, initialStateType>((state) => state.count)
 //function
     const startCounter = (e: ChangeEvent<HTMLInputElement>) => {
         let value = e.currentTarget.value
@@ -24,25 +23,23 @@ const StartCount = () => {
         dispatch(setStartCountAC())
         dispatch(disabledAC(true))
     }
-    let ErrorClassStartCount = stateCount.startCount === stateCount.maxCount
-        || stateCount.startCount<0
-        ? s.inputError : s.input
-    let ErrorClassMaxCount = stateCount.startCount >= stateCount.maxCount
-        ? s.inputError : s.input
+    const isStartEqMax = startCount === maxCount
+    const isStartLessZero = startCount < 0;
+    const isMaxLessStart = startCount >= maxCount
+    const isMaxLessZero = maxCount < 0
+    const isButtonDisabled = isStartEqMax || disabled || isStartLessZero || isMaxLessZero
+
+    const getInputStyle = (isError: boolean) => isError ? s.inputError : s.input
+    const startInputClassName = getInputStyle(isStartEqMax || isStartLessZero)
+    const maxInputClassName = getInputStyle(isMaxLessStart)
 
     return (
         <div>
-            start
-            <input className={ErrorClassStartCount} type={"number"} value={stateCount.startCount} onChange={startCounter}/>
-            max
-            <input className={ErrorClassMaxCount} type={"number"} value={stateCount.maxCount} onChange={maxCounter}/>
-            <button
-                disabled={stateCount.disabled ||
-                    stateCount.startCount < 0 ||
-                    stateCount.maxCount < 0 ||
-                    stateCount.startCount === stateCount.maxCount}
-                onClick={buttonClick}>set
-            </button>
+            <span> start </span>
+            <input className={startInputClassName} type={"number"} value={startCount} onChange={startCounter}/>
+            <span> max </span>
+            <input className={maxInputClassName} type={"number"} value={maxCount} onChange={maxCounter}/>
+            <button disabled={isButtonDisabled} onClick={buttonClick}>set</button>
         </div>
     )
 }

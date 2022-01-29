@@ -1,35 +1,37 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import {AppRootStateType} from "../store/store";
 import {incAC, initialStateType, resAC} from "../store/courReduse";
 import s from './Count.module.css'
 
 const Count = () => {
-    const stateCount = useSelector<AppRootStateType, initialStateType>((state) => state.count)
+    const {
+        startCount,
+        maxCount,
+        count,
+        disabled
+    } = useSelector<AppRootStateType, initialStateType>((state) => state.count)
     const dispatch = useDispatch()
     const incCount = () => dispatch(incAC())
     const resCount = () => dispatch(resAC())
 
-    let errorCount = stateCount.startCount === stateCount.maxCount
-    || stateCount.startCount >= stateCount.maxCount
-    || stateCount.startCount < 0
-    || stateCount.maxCount < 0
-    || stateCount.count === stateCount.maxCount
-        ? s.countError : s.count
+    const isStartEqMax = startCount === maxCount
+    const isStartLessZero = startCount < 0;
+    const isMaxLessStart = startCount >= maxCount
+    const isMaxLessZero = maxCount < 0
+    const isCountEqMax = count === maxCount
+    const isCountEqStart = count === startCount
+    const errorCount = isStartEqMax || isMaxLessStart || isStartLessZero || isMaxLessZero || isCountEqMax
 
     return (
         <div>
-            <div className={errorCount}>
-                {
-                    stateCount.startCount < 0 || stateCount.maxCount < 0
-                        ? ' >=0' : stateCount.startCount >= stateCount.maxCount
-                            ? 'max должент быть больше' : stateCount.count
-                }
+            <div className={errorCount? s.countError : s.count}>
+                {isStartLessZero || isMaxLessZero ? ' >=0' : isMaxLessStart ? 'max должент быть больше' : count}
             </div>
-            <button onClick={incCount} disabled={stateCount.count === stateCount.maxCount || !stateCount.disabled}>
+            <button onClick={incCount} disabled={isCountEqMax || !disabled}>
                 inc
             </button>
-            <button onClick={resCount} disabled={stateCount.count === stateCount.startCount || !stateCount.disabled}>
+            <button onClick={resCount} disabled={isCountEqStart || !disabled}>
                 res
             </button>
         </div>
